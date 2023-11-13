@@ -21,6 +21,16 @@ from plot_utils import adjust_plot
 import matplotlib.pyplot as plt
 
 
+def returnParm(eta, rho, filename):
+    df = pd.read_csv( filename, delimiter='\s+', skiprows = 1, names = ['eta_low','eta_high', 'rho_low', 'rho_high', 'unknown','pt_low','pt_high','par0','par1','par2','par3'])
+    
+    df = df[ (eta > df['eta_low']) &  (eta <= df['eta_high']) & (rho > df['rho_low']) & (rho <= df['rho_high'])  ]
+    p0 = df['par0']
+    p1 = df['par1']
+    p2 = df['par2']
+    p3 = df['par3']
+    return np.reshape([p0, p1, p2, p3], 4)
+
 def computeJER(pt, eta, rho, filename):
     df = pd.read_csv( filename, delimiter='\s+', skiprows = 1, names = ['eta_low','eta_high', 'rho_low', 'rho_high', 'unknown','pt_low','pt_high','par0','par1','par2','par3'])
     
@@ -82,7 +92,7 @@ class Histfit:
         for i in range(len(self.hist_frac_pt)):
             hist_frac = self.hist_frac_pt[i]
             
-            if np.sum(hist_frac) > 500:
+            if np.sum(hist_frac) > 300:
                 results = self.fitGauss(hist_frac, self.frac_values)
                 for j,key in enumerate(self.parameters.keys()):
                     self.parameters[key][i] = results[j]
@@ -143,7 +153,7 @@ class Histfit:
         self.initiate_parameters()
         for repeater in range(10):
             for i,hist_frac in enumerate(self.hist_frac_pt):
-                if np.sum(hist_frac) > 500:
+                if np.sum(hist_frac) > 300:
                     sel = (self.frac_values > (self.parameters["mean"][i] - 1.5*self.parameters["sigma"][i])) &  (self.frac_values < (self.parameters["mean"][i] + 1.5*self.parameters["sigma"][i]))
                     frac_values = self.frac_values[sel]
                     hist_frac = hist_frac[sel]
@@ -157,6 +167,7 @@ class Histfit:
                     break
     def show_fit(self, i):
         hist_frac = self.hist_frac_pt[i]
+        print("Total number of events in this bin" + str(np.sum(hist_frac)))
         print(self.parameters["mean"][i])
         print(self.parameters["sigma"][i])
         sel = (self.frac_values > (self.parameters["mean"][i] - 1.5*self.parameters["sigma"][i])) &  (self.frac_values < (self.parameters["mean"][i] + 1.5*self.parameters["sigma"][i]))

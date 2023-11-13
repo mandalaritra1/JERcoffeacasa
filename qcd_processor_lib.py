@@ -15,6 +15,7 @@ from plot_utils import adjust_plot
 import matplotlib.pyplot as plt
 from utils import Histfit
 import correctionlib
+import re
 
 from distributed.diagnostics.plugin import UploadDirectory
 from processor_utils import *
@@ -88,10 +89,16 @@ class QCDProcessor(processor.ProcessorABC):
     
     def process(self, events):
         dataset = events.metadata['dataset']
+        print(dataset)
         
         if dataset not in self.hists["cutflow"]:
             self.hists["cutflow"][dataset] = defaultdict(int)
             
+        IOV = ('2016APV' if any(re.findall(r'HIPM', dataset))
+               else '2018' if any(re.findall(r'20UL18', dataset))
+               else '2017' if any(re.findall(r'20UL17', dataset))
+               else '2016')   
+        print(IOV)
 
 
         gen_vtx = events.GenVtx.z
@@ -151,7 +158,7 @@ class QCDProcessor(processor.ProcessorABC):
         n_pileup = ak.broadcast_arrays(n_pileup, recojets.pt)[0]
         rho = ak.broadcast_arrays(rho, recojets.pt)[0]
         pu_nTrueInt =   ak.broadcast_arrays(pu_nTrueInt, recojets.pt)[0]      
-        puWeight = GetPUSF("2017", np.array(ak.flatten(pu_nTrueInt)))
+        puWeight = GetPUSF(IOV, np.array(ak.flatten(pu_nTrueInt)))
         
         self.hists["pt_reco_over_gen"].fill( dataset = dataset, pt = ak.flatten(genjets.pt),frac = ak.flatten(ptresponse), 
                                             eta = np.abs(ak.flatten(genjets.eta)), pileup = ak.flatten(n_pileup), weight = puWeight)
