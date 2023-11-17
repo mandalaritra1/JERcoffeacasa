@@ -36,11 +36,11 @@ class QCDProcessor(processor.ProcessorABC):
         
         
         pileup_axis = hist.axis.Variable([0, 10, 20, 30, 40, 50, 60, 70, 80],name = "pileup", label = r"$\mu$" )     
-        pileup_fine_axis = hist.axis.Regular(30, 0, 40, name = 'pileup_fine', label = r"$\mu$")
+        pileup_fine_axis = hist.axis.Regular(61, -.5, 60.5, name = 'pileup_fine', label = r"$\mu$")
         
         rho_axis = hist.axis.Variable( [0, 7.47, 13.49, 19.52, 25.54, 31.57, 37.59, 90], 
                                       name = 'rho', label = r'$\rho$')
-        rho_fine_axis = hist.axis.Regular(30, 0, 30, name = 'rho_fine', label = r"$\rho$")
+        rho_fine_axis = hist.axis.Regular(61, 0, 80, name = 'rho_fine', label = r"$\rho$")
         
         
         #eta_axis = hist.axis.Regular(15, -4,4, name = "eta", label = r"$eta$")
@@ -89,7 +89,7 @@ class QCDProcessor(processor.ProcessorABC):
     
     def process(self, events):
         dataset = events.metadata['dataset']
-        print(dataset)
+        #print(dataset)
         
         if dataset not in self.hists["cutflow"]:
             self.hists["cutflow"][dataset] = defaultdict(int)
@@ -98,7 +98,7 @@ class QCDProcessor(processor.ProcessorABC):
                else '2018' if any(re.findall(r'20UL18', dataset))
                else '2017' if any(re.findall(r'20UL17', dataset))
                else '2016')   
-        print(IOV)
+        #print(IOV)
 
 
         gen_vtx = events.GenVtx.z
@@ -165,7 +165,7 @@ class QCDProcessor(processor.ProcessorABC):
         
         #self.hists["pt_reco_over_raw"].fill( dataset = dataset, pt_raw = ak.flatten(recojets.pt*(1 - recojets.rawFactor)), n = ak.flatten(n_reco_vtx) ,frac = ak.flatten(ptresponse_raw), eta = np.abs(ak.flatten(genjets.eta)), pileup = ak.flatten(n_pileup))
         
-        #self.hists["pileup_rho"].fill(dataset = dataset, rho_fine = ak.flatten(rho), pileup_fine = ak.flatten(n_pileup), weight = puWeight)
+        self.hists["pileup_rho"].fill(dataset = dataset, rho_fine = ak.flatten(rho), pileup_fine = ak.flatten(n_pileup), weight = puWeight)
             
         return self.hists
     
