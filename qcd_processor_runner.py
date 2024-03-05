@@ -92,19 +92,7 @@ def runner(testing = True, eras = ["2017"], prependstr = 'root://xcache/', nwork
             
             
         else:
-            # exe_args = {
-            #     "client": client,
-            #     "skipbadfiles": True,
-            #     "schema": NanoAODSchema,
-            #     "align_clusters": True
-            # }
-            # hists = processor.run_uproot_job(
-            #     fileset,
-            #     treename="Events",
-            #     processor_instance=QCDProcessor(),
-            #     executor=processor.dask_executor,
-            #     executor_args=exe_args
-            #       )
+
             executor = processor.DaskExecutor(client=client)
             run = processor.Runner(executor=executor,
                         schema= NanoAODSchema,
